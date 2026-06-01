@@ -376,7 +376,7 @@ class DashboardSnapshotSchema(BaseModel):
     # Son 7 günlük kilo değişimi
     weight_trend: list[MeasurementSchema] = []
     # Günlük su tüketim özeti
-    daily_water_summary: Optional[DailyWaterSummary] = None
+    daily_water_summary: Optional["DailyWaterSummary"] = None
     # Yeni kazanılan rozetler
     new_achievements: list[UserAchievementSchema] = []
     # Rozet ilerleme durumu
