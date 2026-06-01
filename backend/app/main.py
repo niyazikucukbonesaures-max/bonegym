@@ -65,18 +65,17 @@ import os
 
 
 def build_cors_origins() -> list[str]:
-    """CORS izin verilen origin listesini oluşturur.
-    
-    Geliştirme ortamı URL'leri her zaman dahil edilir.
-    FRONTEND_URL env var tanımlıysa production URL'i de eklenir.
-    """
+    """CORS izin verilen origin listesini oluşturur."""
     origins = [
         "http://localhost:5173",
         "http://localhost:5174",
         "http://localhost:3000",
+        # Render production URL'leri
+        "https://bonegym-frontend.onrender.com",
+        "https://bonegym.onrender.com",
     ]
     frontend_url = os.getenv("FRONTEND_URL")
-    if frontend_url:
+    if frontend_url and frontend_url not in origins:
         origins.append(frontend_url)
     return origins
 
