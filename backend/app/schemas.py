@@ -378,9 +378,9 @@ class DashboardSnapshotSchema(BaseModel):
     # Günlük su tüketim özeti
     daily_water_summary: Optional["DailyWaterSummary"] = None
     # Yeni kazanılan rozetler
-    new_achievements: list[UserAchievementSchema] = []
+    new_achievements: list["UserAchievementSchema"] = []
     # Rozet ilerleme durumu
-    achievement_progress: list[AchievementProgress] = []
+    achievement_progress: list["AchievementProgress"] = []
     # Bildirimler
     notifications: list[str] = []
 
