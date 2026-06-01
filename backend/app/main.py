@@ -28,6 +28,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # AI asistanını başlat
     await ai_assistant_service.initialize()
     logger.info("✅ AI servisi başlatıldı")
+    
+    # Gemini durumunu kontrol et
+    from app.gemini_service import is_gemini_available, _get_gemini_client
+    _get_gemini_client()  # Lazy init'i tetikle
+    if is_gemini_available():
+        logger.info("✅ Gemini AI aktif")
+    else:
+        logger.warning("⚠️ Gemini AI devre dışı — GEMINI_API_KEY kontrol edin")
     logger.info("🎯 Uygulama hazır!")
 
     yield
