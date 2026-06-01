@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: kalorispor-backend
+    runtime: python
+    region: frankfurt
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        sync: false   # Render dashboard'dan girilecek
+      - key: GEMINI_API_KEY
+        sync: false   # Render dashboard'dan girilecek
+      - key: SECRET_KEY
+        generateValue: true   # Render otomatik üretir
+      - key: FRONTEND_URL
+        sync: false   # Frontend deploy edildikten sonra girilecek
+    healthCheckPath: /health

@@ -1,0 +1,126 @@
+/* Performans optimizasyonları */
+
+/* GPU acceleration için transform3d kullan */
+.glass-card {
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Backdrop blur optimizasyonu - daha hafif blur */
+.backdrop-blur-optimized {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Smooth scrolling optimizasyonu */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Transition optimizasyonu - daha hızlı */
+.transition-optimized {
+  transition: transform 0.12s ease-out, opacity 0.12s ease-out;
+}
+
+/* Hover optimizasyonu */
+.hover-scale:hover {
+  transform: scale(1.01) translate3d(0, 0, 0);
+}
+
+/* Scroll container optimizasyonu */
+.scroll-container {
+  contain: layout style paint;
+  overflow-anchor: none;
+}
+
+/* Animation optimizasyonu */
+.animate-optimized {
+  animation-fill-mode: both;
+  animation-duration: 0.2s;
+}
+
+/* Layout thrashing önleme */
+.no-layout-shift {
+  contain: layout;
+}
+
+/* Memory leak önleme */
+.will-change-auto {
+  will-change: auto;
+}
+
+/* Yeni optimizasyonlar */
+
+/* Render optimizasyonu */
+.render-optimized {
+  contain: strict;
+  content-visibility: auto;
+}
+
+/* Intersection observer optimizasyonu */
+.lazy-load {
+  content-visibility: auto;
+  contain-intrinsic-size: 200px;
+}
+
+/* Text rendering optimizasyonu */
+.text-optimized {
+  text-rendering: optimizeSpeed;
+  font-display: swap;
+}
+
+/* Image loading optimizasyonu */
+.img-optimized {
+  loading: lazy;
+  decoding: async;
+}
+
+/* Grid/Flexbox optimizasyonu */
+.layout-optimized {
+  contain: layout style;
+}
+
+/* Scroll performance */
+.scroll-performance {
+  overscroll-behavior: contain;
+  scroll-snap-type: y proximity;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .transition-optimized {
+    transition: none;
+  }
+  
+  .animate-optimized {
+    animation: none;
+  }
+}
+
+/* High refresh rate optimization */
+@media (min-resolution: 120dpi) {
+  .transition-optimized {
+    transition-duration: 0.08s;
+  }
+}
+
+/* Memory efficient animations */
+.memory-efficient {
+  transform: translateZ(0);
+  perspective: 1000px;
+  backface-visibility: hidden;
+}
+
+/* Prevent layout shifts */
+.aspect-ratio-box {
+  aspect-ratio: 16 / 9;
+  contain: layout;
+}
+
+/* Efficient gradients */
+.gradient-optimized {
+  background-attachment: fixed;
+  will-change: transform;
+}

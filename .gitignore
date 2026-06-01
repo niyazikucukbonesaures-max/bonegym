@@ -1,0 +1,35 @@
+# Environment variables - API anahtarları burada, asla commit etme
+.env
+backend/.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.hypothesis/
+*.db
+*.db-shm
+*.db-wal
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Fly.io
+# fly.toml dosyaları commit edilebilir (secret içermez, sadece yapılandırma)
+# Fly CLI geçici dosyaları
+.fly/
+
+# Docker build artifacts
+backend/.dockerignore
+frontend/.dockerignore
+
+# frontend/.env.production commit edilebilir (sadece public URL içerir)
+# backend/.env asla commit edilmemeli (zaten yukarıda tanımlı)

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness App Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #4c1d95, #7c3aed, #3730a3);
+            color: white;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+        .status {
+            margin: 1rem 0;
+            font-size: 1.1rem;
+        }
+        .success {
+            color: #10b981;
+        }
+        .error {
+            color: #ef4444;
+        }
+        button {
+            background: #7c3aed;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+        button:hover {
+            background: #6d28d9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Fitness App</h1>
+        <p>Basit Test Sayfası</p>
+        
+        <div class="status success">✅ HTML: Çalışıyor</div>
+        <div class="status success">✅ CSS: Çalışıyor</div>
+        <div class="status" id="js-status">⏳ JavaScript: Test ediliyor...</div>
+        
+        <div style="margin-top: 2rem;">
+            <button onclick="testReact()">React App'i Test Et</button>
+            <button onclick="testBackend()">Backend'i Test Et</button>
+        </div>
+        
+        <div id="result" style="margin-top: 2rem;"></div>
+    </div>
+
+    <script>
+        // JavaScript test
+        document.getElementById('js-status').innerHTML = '<span class="success">✅ JavaScript: Çalışıyor</span>';
+        
+        function testReact() {
+            document.getElementById('result').innerHTML = '<p>React app test ediliyor...</p>';
+            window.location.href = '/';
+        }
+        
+        function testBackend() {
+            document.getElementById('result').innerHTML = '<p>Backend test ediliyor...</p>';
+            fetch('http://localhost:8000')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('result').innerHTML = '<p class="success">✅ Backend çalışıyor!</p>';
+                })
+                .catch(error => {
+                    document.getElementById('result').innerHTML = '<p class="error">❌ Backend hatası: ' + error + '</p>';
+                });
+        }
+        
+        // Otomatik backend test
+        setTimeout(testBackend, 1000);
+    </script>
+</body>
+</html>

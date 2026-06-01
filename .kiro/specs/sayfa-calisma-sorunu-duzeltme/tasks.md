@@ -1,0 +1,163 @@
+# Implementation Plan
+
+- [x] 1. Write bug condition exploration test
+  - **Property 1: Bug Condition** - Protected Route Access Without Authentication
+  - **CRITICAL**: This test MUST FAIL on unfixed code - failure confirms the bug exists
+  - **DO NOT attempt to fix the test or the code when it fails**
+  - **NOTE**: This test encodes the expected behavior - it will validate the fix when it passes after implementation
+  - **GOAL**: Surface counterexamples that demonstrate the bug exists
+  - **Scoped PBT Approach**: Test concrete failing cases - unauthenticated access to protected routes
+  - Test implementation details from Bug Condition in design:
+    - Navigate to `/food-log` without authentication (token = null)
+    - Navigate to `/meal-plan` without authentication
+    - Navigate to `/achievements` without authentication
+  - The test assertions should match the Expected Behavior Properties from design:
+    - User should be redirected to `/login`
+    - Protected page should NOT render
+    - API calls should NOT be made
+  - Run test on UNFIXED code
+  - **EXPECTED OUTCOME**: Test FAILS (this is correct - it proves the bug exists)
+  - Document counterexamples found:
+    - Protected pages render without authentication
+    - No redirect to login page occurs
+    - API calls are made and return 401 errors
+  - Mark task complete when test is written, run, and failure is documented
+  - _Requirements: 1.1, 1.4, 2.1, 2.4_
+
+- [x] 2. Write preservation property tests (BEFORE implementing fix)
+  - **Property 2: Preservation** - Authenticated User Access and Login Flow
+  - **IMPORTANT**: Follow observation-first methodology
+  - Observe behavior on UNFIXED code for non-buggy inputs:
+    - Login with valid credentials → redirects to dashboard, token stored
+    - Access dashboard with valid token → page renders, data loads
+    - Logout → token cleared, redirects to login
+    - Register new user → token created, redirects to dashboard
+  - Write property-based tests capturing observed behavior patterns from Preservation Requirements:
+    - Test: Login flow produces token and redirects to dashboard
+    - Test: Dashboard page renders correctly for authenticated users
+    - Test: Logout clears token and redirects to login
+    - Test: Register flow creates user and authenticates
+    - Test: Auto-login works when valid token exists in localStorage
+  - Property-based testing generates many test cases for stronger guarantees
+  - Run tests on UNFIXED code
+  - **EXPECTED OUTCOME**: Tests PASS (this confirms baseline behavior to preserve)
+  - Mark task complete when tests are written, run, and passing on unfixed code
+  - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
+
+- [x] 3. Fix for Protected Route Authentication
+
+  - [x] 3.1 Create ProtectedRoute component
+    - Create new file: `frontend/src/components/ProtectedRoute.tsx`
+    - Import `useAuth` hook from AuthContext
+    - Import `Navigate` from react-router-dom
+    - Implement component logic:
+      - Get `token` and `isLoading` from `useAuth()`
+      - If `isLoading`, return loading spinner
+      - If no `token`, return `<Navigate to="/login" replace />`
+      - If `token` exists, render `children`
+    - Add TypeScript types for props: `{ children: React.ReactNode }`
+    - _Bug_Condition: isBugCondition(input) where input.isProtectedRoute = true AND input.isAuthenticated = false_
+    - _Expected_Behavior: User redirected to /login when accessing protected routes without authentication_
+    - _Preservation: Authenticated users can access all pages normally_
+    - _Requirements: 2.1, 2.4_
+
+  - [x] 3.2 Update App.tsx to use ProtectedRoute
+    - Import ProtectedRoute component
+    - Wrap protected routes with ProtectedRoute:
+      - `/dashboard` → `<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>`
+      - `/food-log` → `<ProtectedRoute><Layout><FoodLog /></Layout></ProtectedRoute>`
+      - `/meal-plan` → `<ProtectedRoute><Layout><MealPlan /></Layout></ProtectedRoute>`
+      - `/achievements` → `<ProtectedRoute><Layout><Achievements /></Layout></ProtectedRoute>`
+      - `/workouts` → `<ProtectedRoute><Layout><Workouts /></Layout></ProtectedRoute>`
+      - `/creatine` → `<ProtectedRoute><Layout><Creatine /></Layout></ProtectedRoute>`
+      - `/measurements` → `<ProtectedRoute><Layout><Measurements /></Layout></ProtectedRoute>`
+      - `/profile` → `<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>`
+      - `/export` → `<ProtectedRoute><Layout><Export /></Layout></ProtectedRoute>`
+    - Keep `/login` route public (no ProtectedRoute wrapper)
+    - _Bug_Condition: Routes accessible without authentication_
+    - _Expected_Behavior: All protected routes require authentication_
+    - _Preservation: Login page remains public, authenticated access unchanged_
+    - _Requirements: 2.1, 2.4, 3.2_
+
+  - [x] 3.3 Add Axios request interceptor for token injection
+    - Open `frontend/src/lib/api.ts`
+    - Add request interceptor to axios instance:
+      - Get token from localStorage: `localStorage.getItem('token')`
+      - If token exists, add to Authorization header: `Bearer ${token}`
+      - Return modified config
+    - Ensure interceptor runs for all API requests
+    - _Bug_Condition: API calls made without token in Authorization header_
+    - _Expected_Behavior: All API requests include token automatically_
+    - _Preservation: Existing API calls work with token injection_
+    - _Requirements: 1.2, 2.2, 3.4_
+
+  - [x] 3.4 Add Axios response interceptor for 401 handling
+    - Open `frontend/src/lib/api.ts`
+    - Add response interceptor to axios instance:
+      - On successful response, return response as-is
+      - On error, check if status is 401:
+        - Clear token from localStorage: `localStorage.removeItem('token')`
+        - Redirect to login: `window.location.href = '/login'`
+        - Return rejected promise
+      - For other errors, return rejected promise
+    - _Bug_Condition: 401 errors not handled, user not redirected_
+    - _Expected_Behavior: 401 errors clear token and redirect to login_
+    - _Preservation: Other error handling unchanged_
+    - _Requirements: 1.3, 2.3_
+
+  - [x] 3.5 Setup interceptors in AuthContext
+    - Open `frontend/src/contexts/AuthContext.tsx`
+    - Import setupInterceptors from api.ts (if not already exported, export it)
+    - Add useEffect hook to call setupInterceptors on mount
+    - Ensure interceptors are initialized before any API calls
+    - _Bug_Condition: Interceptors not initialized_
+    - _Expected_Behavior: Interceptors active from app start_
+    - _Preservation: AuthContext initialization unchanged_
+    - _Requirements: 2.2, 2.3_
+
+  - [x] 3.6 Add authenticated user redirect in Login page
+    - Open `frontend/src/pages/Login.tsx`
+    - Import `useAuth` hook and `useNavigate` from react-router-dom
+    - Add useEffect hook:
+      - Get `token` and `isLoading` from `useAuth()`
+      - If `token` exists and `!isLoading`, navigate to `/dashboard`
+    - Add loading state display while checking authentication
+    - _Bug_Condition: Authenticated users can access login page_
+    - _Expected_Behavior: Authenticated users redirected to dashboard_
+    - _Preservation: Login functionality for unauthenticated users unchanged_
+    - _Requirements: 2.5, 3.1_
+
+  - [x] 3.7 Verify bug condition exploration test now passes
+    - **Property 1: Expected Behavior** - Protected Route Access Control
+    - **IMPORTANT**: Re-run the SAME test from task 1 - do NOT write a new test
+    - The test from task 1 encodes the expected behavior
+    - When this test passes, it confirms the expected behavior is satisfied
+    - Run bug condition exploration test from step 1
+    - **EXPECTED OUTCOME**: Test PASSES (confirms bug is fixed)
+    - Verify:
+      - Unauthenticated users redirected to `/login`
+      - Protected pages do not render without authentication
+      - No API calls made without authentication
+    - _Requirements: 2.1, 2.4_
+
+  - [x] 3.8 Verify preservation tests still pass
+    - **Property 2: Preservation** - Authenticated User Access and Login Flow
+    - **IMPORTANT**: Re-run the SAME tests from task 2 - do NOT write new tests
+    - Run preservation property tests from step 2
+    - **EXPECTED OUTCOME**: Tests PASS (confirms no regressions)
+    - Verify:
+      - Login flow works correctly
+      - Dashboard accessible for authenticated users
+      - Logout functionality preserved
+      - Register flow preserved
+      - Auto-login preserved
+    - Confirm all tests still pass after fix (no regressions)
+
+- [x] 4. Checkpoint - Ensure all tests pass
+  - Run all tests (bug condition + preservation)
+  - Verify all protected routes require authentication
+  - Verify authenticated users can access all pages
+  - Verify API calls include token automatically
+  - Verify 401 errors redirect to login
+  - Verify login/logout/register flows work correctly
+  - If any issues arise, ask the user for guidance
